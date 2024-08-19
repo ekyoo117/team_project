@@ -1,0 +1,70 @@
+군집화(클러스터링,Clustering)
+타겟(label)데이터 없이 주어진 데이터들을 비슷한 특성을 가진 몇몇 그룹으로 그룹을 지어 분류(구분)해 주는
+Unsupervised Learning 알고리즘
+
+ label이나 category 설명
+-> k-means
+https://wikidocs.net/37283
+
+거리와 거리들의 평균을 계산하기 때문에 정규화가 필요
+
+
+군집의 임시식별자(0,1,2) -> 각 군집(종류) 의미 주제,성격 파악
+->의미 식별자(종류) 레이블링 
+------------------------------------------
+#%% K를 선택하는 방법
+#1. 제곱근(데이터개수/2)
+#2. 엘보우 기법
+#클러스터 개수가 많을수록 centroid 간의 평균 거리가 줄어든다.(개수가 늘 때마다 평균값이 급격히 감소)
+#centroid 간의 평균 거리가 더 이상 많이 감소하지 않는 경우의 K를 선택
+x_data = iris.data
+
+import matplotlib.pyplot as plt
+plt.rc('font', family='Malgun Gothic')
+inertia = [] #거리(왜곡)크기
+for k in range(1, 11):
+    km = KMeans(n_clusters=k, random_state=0)
+    km.fit(x_data)
+    inertia.append(km.inertia_)#inertia_ : 샘플과 가장 가까운 중심점 사이의 평균 제곱 거리를 측정한 수치
+
+plt.plot(range(1, 11), inertia)
+plt.xlabel('클러스터 개수 K')
+plt.ylabel('평균 거리')
+-----------------------------------------------------------
+
+
+#%% mysql db 연동
+pip install pymysql
+
+import pymysql
+conn = pymysql.connect(host='127.0.0.1', 
+                       port=3306,
+                       user='root',
+                       password='oraclejava',
+                       charset='utf8',
+                       db='testDB',
+                       cursorclass=pymysql.cursors.DictCursor) # DB조회시 컬럼명을보여줌(pd.DataFrame(rows)에서도 컬럼명 들어감) 
+cursor = conn.cursor() # cursor 객체 얻어오기
+cursor.execute('select * from emp;')
+rows = cursor.fetchall() #행 전부 가져오기
+dfe=pd.DataFrame(rows)
+for rs in rows:#행 적출후 cursor는 행 비워진다
+     print(rs)# 행 출력
+
+-----------------------------------------------
+
+#%% 동적쿼리
+sql="""
+select empno,ename
+from emp
+where empno=%s
+"""     
+cursor.execute(sql,[1])     
+cursor.fetchone()  
+
+
+sql = 'insert into emp values(%s,%s)'
+cursor.execute(sql,[3,"이순신"])
+conn.commit()
+cursor.execute('select * from emp')
+cursor.fetchall()
